@@ -199,6 +199,8 @@ Please note that panicking should be very rare and used only with a good reason.
 
 - *The Art of Readable Code* by Dustin Boswell and Trevor
 Foucher. Copyright 2012 Dustin Boswell and Trevor Foucher, 978-0-596-80229-5.
-- Linux kernel coding style, https://www.kernel.org/doc/html/latest/process/coding-style.html
+- The Linux Kernel - coding style, https://www.kernel.org/doc/html/latest/process/coding-style.html
+- The Linux Kernel - Rust Coding Guidelines, https://docs.kernel.org/rust/coding-guidelines.html
 - Rust Style Guide, https://doc.rust-lang.org/style-guide/index.html
+- The Rust Programming Language, https://doc.rust-lang.org/book/title-page.html
 - Future Enterprise Coding Standards - Javaコーディング規約, https://future-architect.github.io/coding-standards/documents/forJava/Java%E3%82%B3%E3%83%BC%E3%83%87%E3%82%A3%E3%83%B3%E3%82%B0%E8%A6%8F%E7%B4%84.html

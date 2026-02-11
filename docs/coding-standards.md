@@ -195,6 +195,8 @@ microrps folows the usual Rust error handling conventions:
 
 Please note that panicking should be very rare and used only with a good reason. In almost all cases, a fallible approach should be used, typically returning a Result.
 
+This project aims for production-level quality, so basically you should use `expect` rather than unwrap and give more context about why the operation is expected to always succeed.
+
 # References
 
 - *The Art of Readable Code* by Dustin Boswell and Trevor

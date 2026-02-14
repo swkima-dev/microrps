@@ -5,4 +5,5 @@ edition = "2024"
 
 [dependencies]
 log = {version = "0.4.29", default-features = false}
+rand = "0.10.0"
 simple_logger = "5.1.0"

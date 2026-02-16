@@ -1,6 +1,6 @@
-use domain;
+use domain::net_init;
 use pal_linux::LinuxConsole;
 
 fn main() {
-    domain::net_init::<LinuxConsole>();
+    net_init::<LinuxConsole>();
 }

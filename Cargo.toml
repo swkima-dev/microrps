@@ -2,6 +2,8 @@
 resolver = "3"
 members = ["protocolstack/domain", "protocolstack/platform/*", "samples/*"]
 
+default-members = ["protocolstack/domain", "protocolstack/platform/linux", "samples/linux"]
+
 [workspace.dependencies]
 domain = { path = "protocolstack/domain" }
 pal-linux = { path = "protocolstack/platform/linux" }

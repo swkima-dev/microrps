@@ -1,6 +1,7 @@
-[package]
-name = "microrps"
-version = "0.1.0"
-edition = "2024"
+[workspace]
+resolver = "3"
+members = ["protocolstack/domain", "protocolstack/platform/*", "samples/*"]
 
-[dependencies]
+[workspace.dependencies]
+domain = { path = "protocolstack/domain" }
+pal-linux = { path = "protocolstack/platform/linux" }

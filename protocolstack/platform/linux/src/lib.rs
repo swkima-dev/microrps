@@ -1,9 +1,1 @@
-use domain::pal::Console;
-
-pub struct LinuxConsole;
-
-impl Console for LinuxConsole {
-    fn strout(s: &str) {
-        println!("{}", s);
-    }
-}
+pub use simple_logger::SimpleLogger;

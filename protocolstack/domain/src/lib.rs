@@ -1,9 +1,8 @@
 #![no_std]
 
 pub mod pal;
+use log::info;
 
-use pal::Console;
-
-pub fn net_init<C: Console>() {
-    C::strout("network initialization...");
+pub fn net_init() {
+    info!("network initialization...");
 }

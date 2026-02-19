@@ -1,7 +1,6 @@
 use domain::net_init;
-use pal_linux::SimpleLogger;
+use pal_linux::StdLogger;
 
 fn main() {
-    SimpleLogger::new().init().unwrap();
-    net_init();
+    net_init::<StdLogger>();
 }

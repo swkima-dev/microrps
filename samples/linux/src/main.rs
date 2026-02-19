@@ -1,6 +1,6 @@
 use domain::net_init;
-use pal_linux::StdLogger;
+use pal_linux::Linux;
 
 fn main() {
-    net_init::<StdLogger>();
+    net_init::<Linux>();
 }

@@ -1,11 +1,15 @@
-use domain::pal::LogInit;
+use domain::pal::Platform;
 use simple_logger::SimpleLogger;
-pub struct StdLogger;
+pub struct Linux;
 
-impl LogInit for StdLogger {
-    fn init() {
-        SimpleLogger::new()
-            .init()
-            .expect("Logger initialization has been failed.");
+impl Platform for Linux {
+    type Logger = SimpleLogger;
+
+    fn log_init(logger: Self::Logger) {
+        logger.init().expect("Logger initialization failed.");
+    }
+
+    fn create_logger() -> Self::Logger {
+        Self::Logger::new()
     }
 }

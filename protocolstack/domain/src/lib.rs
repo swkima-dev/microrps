@@ -4,12 +4,16 @@ extern crate alloc;
 pub mod net_device;
 pub mod pal;
 
-use core::marker::PhantomData;
-
+use crate::alloc::string::ToString;
 use crate::pal::Platform;
+use alloc::string::String;
+use alloc::vec;
 use alloc::vec::Vec;
+use core::marker::PhantomData;
 use log::info;
 use net_device::NetDevice;
+use net_device::NetDeviceFlags;
+use net_device::NetDeviceType;
 
 // pub fn net_init<P: Platform>() {
 //     P::init();
@@ -26,13 +30,44 @@ pub struct NetStack<P: Platform> {
 impl<P: Platform> NetStack<P> {
     pub fn init() -> Self {
         P::init();
+        info!("network initialization...");
+        info!("success");
         Self {
-            devices: Self::devices_new(),
+            devices: Vec::new(),
             _platform: PhantomData,
         }
     }
 
-    fn devices_new() -> Vec<NetDevice> {
-        Vec::new()
+    pub fn new_device(
+        &mut self,
+        device_type: NetDeviceType,
+        mtu: u16,
+        header_len: u16,
+        addres_len: u16,
+        addr: [u8; 16],
+    ) {
+        info!("Register new device...");
+        let index_size = self.devices.len();
+        let mut exist_index = vec![false; index_size + 1];
+        for device in &self.devices {
+            exist_index[device.get_index()] = true;
+        }
+        for (i, val) in exist_index.iter().enumerate() {
+            if !val {
+                let new_device_name = String::from("net") + &i.to_string();
+                NetDevice::new(
+                    i,
+                    new_device_name.clone(),
+                    device_type,
+                    mtu,
+                    header_len,
+                    addres_len,
+                    addr,
+                    NetDeviceFlags::empty(),
+                );
+                info!("success, dev={}", &new_device_name);
+                break;
+            }
+        }
     }
 }

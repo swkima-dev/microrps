@@ -2,7 +2,7 @@ use alloc::string::String;
 use bitflags::bitflags;
 
 pub struct NetDevice {
-    index: u8,
+    index: usize,
     name: String,
     device_type: NetDeviceType,
     mtu: u16,
@@ -29,8 +29,8 @@ bitflags! {
 }
 
 impl NetDevice {
-    fn new(
-        index: u8,
+    pub fn new(
+        index: usize,
         name: String,
         device_type: NetDeviceType,
         mtu: u16,
@@ -49,5 +49,9 @@ impl NetDevice {
             addr,
             flags,
         }
+    }
+
+    pub fn get_index(&self) -> usize {
+        self.index
     }
 }

@@ -7,3 +7,4 @@ edition = "2024"
 domain.workspace = true
 log.workspace = true
 simple_logger = "5.0"
+bitflags.workspace = true

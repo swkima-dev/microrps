@@ -1,6 +1,6 @@
-use domain::net_init;
+use domain::NetStack;
 use pal_linux::Linux;
 
 fn main() {
-    net_init::<Linux>();
+    let mut netstack: NetStack<Linux> = NetStack::<Linux>::init();
 }

@@ -1,9 +1,15 @@
-use domain::pal::Console;
+use domain::pal::Platform;
+use simple_logger::SimpleLogger;
+pub struct Linux;
 
-pub struct LinuxConsole;
+impl Platform for Linux {
+    type Logger = SimpleLogger;
 
-impl Console for LinuxConsole {
-    fn strout(s: &str) {
-        println!("{}", s);
+    fn log_init(logger: Self::Logger) {
+        logger.init().expect("Logger initialization failed.");
+    }
+
+    fn create_logger() -> Self::Logger {
+        Self::Logger::new()
     }
 }

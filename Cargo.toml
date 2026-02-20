@@ -7,3 +7,4 @@ default-members = ["protocolstack/domain", "protocolstack/platform/linux", "samp
 [workspace.dependencies]
 domain = { path = "protocolstack/domain" }
 pal-linux = { path = "protocolstack/platform/linux" }
+log = {version = "0.4", default-features = false}

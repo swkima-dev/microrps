@@ -5,3 +5,5 @@ edition = "2024"
 
 [dependencies]
 domain.workspace = true
+log.workspace = true
+simple_logger = "5.0"

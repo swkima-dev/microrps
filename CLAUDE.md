@@ -31,9 +31,9 @@ samples/linux        -- Binary: wires platform impl to domain
                      └─ depends on ─→ protocolstack/domain
 ```
 
-- **`protocolstack/domain`** (`domain` crate): Platform-agnostic core. Defines the PAL (Platform Abstraction Layer) traits in `pal.rs` (e.g., `Console` trait). All platform-specific behavior is abstracted behind these traits. Uses `#![no_std]` with `extern crate alloc`.
-- **`protocolstack/platform/linux`** (`pal-linux` crate): Implements PAL traits for Linux (e.g., `LinuxConsole` implements `Console`).
-- **`samples/linux`**: Binary crate that calls domain functions with concrete platform types (e.g., `net_init::<LinuxConsole>()`).
+- **`protocolstack/domain`** (`domain` crate): Platform-agnostic core (`#![no_std]`). Defines the `Platform` trait in `pal.rs` which abstracts platform-specific behavior (e.g., logger creation/initialization via `Log` trait bound). Uses `log` crate facade for logging.
+- **`protocolstack/platform/linux`** (`pal-linux` crate): Implements `Platform` trait for Linux (e.g., `Linux` struct with `SimpleLogger`).
+- **`samples/linux`**: Binary crate that calls domain functions with concrete platform types (e.g., `net_init::<Linux>()`).
 
 Workspace `default-members` includes only domain, platform/linux, and samples/linux, so bare `cargo build` targets the Linux platform.
 

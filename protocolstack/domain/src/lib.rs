@@ -4,16 +4,13 @@ extern crate alloc;
 pub mod net_device;
 pub mod pal;
 
-use crate::alloc::string::ToString;
 use crate::pal::Platform;
-use alloc::string::String;
+use alloc::string::{String, ToString};
 use alloc::vec;
 use alloc::vec::Vec;
 use core::marker::PhantomData;
 use log::info;
-use net_device::NetDevice;
-use net_device::NetDeviceFlags;
-use net_device::NetDeviceType;
+use net_device::{NetDevice, NetDeviceFlags, NetDeviceType};
 
 pub struct NetStack<P: Platform> {
     devices: Vec<NetDevice>,

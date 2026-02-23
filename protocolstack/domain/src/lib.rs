@@ -40,7 +40,7 @@ impl<P: Platform> NetStack<P> {
         let index_size = self.devices.len();
         let mut exist_index = vec![false; index_size + 1];
         for device in &self.devices {
-            exist_index[device.get_index()] = true;
+            exist_index[device.index()] = true;
         }
         for (i, val) in exist_index.iter().enumerate() {
             if !val {

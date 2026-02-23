@@ -51,7 +51,7 @@ impl NetDevice {
         }
     }
 
-    pub fn get_index(&self) -> usize {
+    pub fn index(&self) -> usize {
         self.index
     }
 }

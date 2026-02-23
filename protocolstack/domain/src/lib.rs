@@ -45,7 +45,7 @@ impl<P: Platform> NetStack<P> {
         for (i, val) in exist_index.iter().enumerate() {
             if !val {
                 let new_device_name = String::from("net") + &i.to_string();
-                NetDevice::new(
+                let new_device = NetDevice::new(
                     i,
                     new_device_name.clone(),
                     device_type,
@@ -55,6 +55,7 @@ impl<P: Platform> NetStack<P> {
                     addr,
                     NetDeviceFlags::empty(),
                 );
+                self.devices.push(new_device);
                 info!("success, dev={}", &new_device_name);
                 break;
             }

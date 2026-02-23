@@ -7,7 +7,7 @@ pub struct NetDevice {
     device_type: NetDeviceType,
     mtu: u16,
     header_len: u16,
-    addres_len: u16,
+    address_len: u16,
     addr: [u8; 16],
     flags: NetDeviceFlags,
 }
@@ -35,7 +35,7 @@ impl NetDevice {
         device_type: NetDeviceType,
         mtu: u16,
         header_len: u16,
-        addres_len: u16,
+        address_len: u16,
         addr: [u8; 16],
         flags: NetDeviceFlags,
     ) -> Self {
@@ -45,7 +45,7 @@ impl NetDevice {
             device_type,
             mtu,
             header_len,
-            addres_len,
+            address_len,
             addr,
             flags,
         }

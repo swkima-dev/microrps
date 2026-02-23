@@ -15,13 +15,6 @@ use net_device::NetDevice;
 use net_device::NetDeviceFlags;
 use net_device::NetDeviceType;
 
-// pub fn net_init<P: Platform>() {
-//     P::init();
-//     info!("network initialization...");
-//     // implementation of execution of network protocol stack;
-//     info!("network shutdown...");
-// }
-
 pub struct NetStack<P: Platform> {
     devices: Vec<NetDevice>,
     _platform: PhantomData<P>,

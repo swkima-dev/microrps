@@ -9,8 +9,8 @@ use alloc::string::{String, ToString};
 use alloc::vec;
 use alloc::vec::Vec;
 use core::marker::PhantomData;
-use log::info;
-use net_device::{NetDevice, NetDeviceFlags, NetDeviceType};
+use log::{info, warn};
+use net_device::{NetDevice, NetDeviceError, NetDeviceFlags, NetDeviceType};
 
 pub struct NetStack<P: Platform> {
     devices: Vec<NetDevice>,
@@ -20,12 +20,35 @@ pub struct NetStack<P: Platform> {
 impl<P: Platform> NetStack<P> {
     pub fn init() -> Self {
         P::init();
-        info!("network initialization...");
-        info!("success");
+        info!("network initialization success");
         Self {
             devices: Vec::new(),
             _platform: PhantomData,
         }
+    }
+
+    pub fn run(&mut self) {
+        info!("startup...");
+        for device in &mut self.devices {
+            match device.enable() {
+                Ok(()) => info!("{} is enabled", device.name()),
+                Err(NetDeviceError::AlreadyUp) => warn!("{} is already Up", device.name()),
+                Err(_) => unreachable!(),
+            }
+        }
+        info!("success");
+    }
+
+    pub fn shutdown(&mut self) {
+        info!("shutting down...");
+        for device in &mut self.devices {
+            match device.disable() {
+                Ok(()) => info!("{} is disabled", device.name()),
+                Err(NetDeviceError::AlreadyDown) => warn!("{} is already Down", device.name()),
+                Err(_) => unreachable!(),
+            }
+        }
+        info!("success");
     }
 
     pub fn new_device(

@@ -54,4 +54,33 @@ impl NetDevice {
     pub fn index(&self) -> usize {
         self.index
     }
+
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    pub fn enable(&mut self) -> Result<(), NetDeviceError> {
+        if self.is_up() {
+            return Err(NetDeviceError::AlreadyUp);
+        }
+        self.flags.insert(NetDeviceFlags::UP);
+        Ok(())
+    }
+
+    pub fn disable(&mut self) -> Result<(), NetDeviceError> {
+        if !self.is_up() {
+            return Err(NetDeviceError::AlreadyDown);
+        }
+        self.flags.remove(NetDeviceFlags::UP);
+        Ok(())
+    }
+
+    pub fn is_up(&self) -> bool {
+        self.flags.contains(NetDeviceFlags::UP)
+    }
+}
+
+pub enum NetDeviceError {
+    AlreadyUp,
+    AlreadyDown,
 }

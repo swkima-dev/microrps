@@ -1,5 +1,3 @@
-pub mod builder;
-
 use crate::util;
 use alloc::string::String;
 use bitflags::bitflags;

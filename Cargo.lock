@@ -71,7 +71,6 @@ dependencies = [
 name = "pal-linux"
 version = "0.1.0"
 dependencies = [
- "bitflags",
  "domain",
  "log",
  "simple_logger",

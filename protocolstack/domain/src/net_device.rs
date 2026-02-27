@@ -1,3 +1,4 @@
+use crate::util;
 use alloc::string::String;
 use bitflags::bitflags;
 
@@ -78,9 +79,23 @@ impl NetDevice {
     pub fn is_up(&self) -> bool {
         self.flags.contains(NetDeviceFlags::UP)
     }
+
+    pub fn output(&self, protocol_type: u16, data: &[u8], dst: ()) -> Result<(), NetDeviceError> {
+        util::debugdump(data);
+        if !self.is_up() {
+            return Err(NetDeviceError::DeviceDown);
+        }
+        let mtu_usize = self.mtu as usize;
+        if mtu_usize < data.len() {
+            return Err(NetDeviceError::PacketTooLong);
+        }
+        Ok(())
+    }
 }
 
 pub enum NetDeviceError {
     AlreadyUp,
     AlreadyDown,
+    DeviceDown,
+    PacketTooLong,
 }

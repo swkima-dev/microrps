@@ -10,7 +10,7 @@ use alloc::string::{String, ToString};
 use alloc::vec::Vec;
 use core::marker::PhantomData;
 use log::{info, warn};
-use net_device::{NetDevice, NetDeviceError, NetDeviceFlags, NetDeviceType};
+use net_device::{NetDevice, NetDeviceError, NetDeviceFlags, NetDeviceType, builder};
 
 pub struct NetStack<P: Platform> {
     devices: Vec<NetDevice>,
@@ -62,16 +62,17 @@ impl<P: Platform> NetStack<P> {
         info!("Register new device...");
         let index_size = self.devices.len();
         let new_device_name = String::from("net") + &index_size.to_string();
-        let new_device = NetDevice::new(
-            index_size,
-            new_device_name.clone(),
-            device_type,
-            mtu,
-            header_len,
-            address_len,
-            addr,
-            NetDeviceFlags::empty(),
-        );
+        let new_device = builder::Builder::new()
+            .index(index_size)
+            .name(new_device_name.clone())
+            .device_type(device_type)
+            .mtu(mtu)
+            .header_len(header_len)
+            .address_len(address_len)
+            .addr(addr)
+            .flags(NetDeviceFlags::empty())
+            .build()
+            .expect("All fields are provided by new_device");
         self.devices.push(new_device);
         info!("success, dev={}", &new_device_name);
         index_size

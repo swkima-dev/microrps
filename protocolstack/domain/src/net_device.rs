@@ -2,6 +2,7 @@ use crate::util;
 use alloc::string::String;
 use bitflags::bitflags;
 
+#[allow(dead_code)]
 pub struct NetDevice {
     index: usize,
     name: String,
@@ -80,6 +81,7 @@ impl NetDevice {
         self.flags.contains(NetDeviceFlags::UP)
     }
 
+    #[allow(unused_variables)]
     pub fn output(&self, protocol_type: u16, data: &[u8], dst: ()) -> Result<(), NetDeviceError> {
         util::debugdump(data);
         if !self.is_up() {

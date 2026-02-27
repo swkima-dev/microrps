@@ -74,7 +74,7 @@ impl<P: Platform> NetStack<P> {
         );
         self.devices.push(new_device);
         info!("success, dev={}", &new_device_name);
-        return index_size;
+        index_size
     }
 
     pub fn output(&self, index: usize, protocol_type: u16, data: &[u8]) {

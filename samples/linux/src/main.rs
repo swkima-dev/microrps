@@ -5,7 +5,7 @@ use domain::net_device::NetDeviceType;
 
 fn main() {
     let mut netstack: NetStack<Linux> = NetStack::<Linux>::init();
-    let id_0 = netstack.new_device(NetDeviceType::Dummy, 1600, 0, 0, [0; 16]);
+    let id_0 = netstack.register_device(NetDeviceType::Dummy, 1600, 0, 0, [0; 16]);
     netstack.run();
     let test_data = vec![
         0x45, 0x00, 0x00, 0x30, 0x00, 0x80, 0x00, 0x00, 0xff, 0x01, 0xbd, 0x4a, 0x7f, 0x00, 0x00,

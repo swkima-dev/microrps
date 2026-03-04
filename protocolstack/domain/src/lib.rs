@@ -51,7 +51,7 @@ impl<P: Platform> NetStack<P> {
         info!("success");
     }
 
-    pub fn new_device(
+    pub fn register_device(
         &mut self,
         device_type: NetDeviceType,
         mtu: u16,

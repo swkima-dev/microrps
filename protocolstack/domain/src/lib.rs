@@ -79,7 +79,11 @@ impl<P: Platform> NetStack<P> {
     }
 
     pub fn output(&self, index: usize, protocol_type: u16, data: &[u8]) {
-        match self.devices[index].output(protocol_type, data, ()) {
+        let Some(device) = self.devices.get(index) else {
+            warn!("target device not found");
+            return;
+        };
+        match device.output(protocol_type, data, ()) {
             Err(NetDeviceError::DeviceDown) => warn!("target device is down"),
             Err(NetDeviceError::PacketTooLong) => warn!("packet is too long"),
             Err(_) => unreachable!(),

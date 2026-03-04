@@ -4,7 +4,7 @@ use alloc::{
     vec::Vec,
 };
 use log::debug;
-fn get_hex_rep(byte_array: &[u8]) -> Vec<String> {
+fn hex_rep(byte_array: &[u8]) -> Vec<String> {
     byte_array
         .iter()
         .enumerate()
@@ -18,7 +18,7 @@ fn get_hex_rep(byte_array: &[u8]) -> Vec<String> {
         .collect()
 }
 
-fn get_ascii_rep(byte_array: &[u8]) -> Vec<String> {
+fn ascii_rep(byte_array: &[u8]) -> Vec<String> {
     byte_array
         .iter()
         .map(|num| {
@@ -36,9 +36,10 @@ fn hexdump(byte_array: &[u8]) -> String {
         .chunks(16)
         .enumerate()
         .map(|(i, val)| {
-            let hex: String = get_hex_rep(val).join(" ");
-            let ascii: String = get_ascii_rep(val).join("");
-            format!("{:08x}  {}  |{}|", i * 16, hex, ascii)
+            let hex: String = hex_rep(val).join(" ");
+            let ascii: String = ascii_rep(val).join("");
+            // 48 = 16 bytes * 2 hex + 15 blank + 1 additional separator blank
+            format!("{:08x}  {:<48}  |{}|", i * 16, hex, ascii)
         })
         .collect();
     dumped_str.join("\n")
@@ -53,7 +54,7 @@ mod tests {
     use super::hexdump;
     use alloc::vec;
     #[test]
-    fn hexdump_test() {
+    fn hexdump_test_1() {
         let test_data = vec![
             0x45, 0x00, 0x00, 0x30, 0x00, 0x80, 0x00, 0x00, 0xff, 0x01, 0xbd, 0x4a, 0x7f, 0x00,
             0x00, 0x01, 0x7f, 0x00, 0x00, 0x01, 0x08, 0x00, 0x35, 0x64, 0x00, 0x80, 0x00, 0x01,
@@ -64,6 +65,13 @@ mod tests {
             "00000000  45 00 00 30 00 80 00 00  ff 01 bd 4a 7f 00 00 01  |E..0.......J....|
 00000010  7f 00 00 01 08 00 35 64  00 80 00 01 31 32 33 34  |......5d....1234|
 00000020  35 36 37 38 39 30 21 40  23 24 25 5e 26 2a 28 29  |567890!@#$%^&*()|";
+        assert_eq!(result, hexdump(&test_data));
+    }
+
+    #[test]
+    fn hexdump_test_2() {
+        let test_data = vec![0x61, 0x62, 0x63];
+        let result = "00000000  61 62 63                                          |abc|";
         assert_eq!(result, hexdump(&test_data));
     }
 }

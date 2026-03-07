@@ -1,7 +1,6 @@
 use crate::util;
 use alloc::string::String;
 use bitflags::bitflags;
-use core::fmt;
 
 #[allow(dead_code)]
 pub struct NetDevice {

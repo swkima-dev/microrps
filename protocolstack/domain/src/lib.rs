@@ -1,12 +1,106 @@
 #![no_std]
+extern crate alloc;
 
+pub mod net_device;
 pub mod pal;
-use crate::pal::Platform;
-use log::info;
+pub mod util;
 
-pub fn net_init<P: Platform>() {
-    P::init();
-    info!("network initialization...");
-    // implementation of execution of network protocol stack;
-    info!("network shutdown...");
+use crate::pal::Platform;
+use alloc::string::{String, ToString};
+use alloc::vec::Vec;
+use core::marker::PhantomData;
+use log::{info, warn};
+use net_device::{Builder, NetDevice, NetDeviceError, NetDeviceFlags, NetDeviceType};
+
+pub struct NetStack<P: Platform> {
+    devices: Vec<NetDevice>,
+    _platform: PhantomData<P>,
+}
+
+impl<P: Platform> NetStack<P> {
+    pub fn init() -> Self {
+        P::init();
+        info!("network initialization success");
+        Self {
+            devices: Vec::new(),
+            _platform: PhantomData,
+        }
+    }
+
+    pub fn run(&mut self) {
+        info!("startup...");
+        for device in &mut self.devices {
+            match device.enable() {
+                Ok(()) => info!("{} is enabled", device.name()),
+                Err(NetDeviceError::AlreadyUp) => warn!("{} is already Up", device.name()),
+                Err(_) => unreachable!(),
+            }
+        }
+        info!("success");
+    }
+
+    pub fn shutdown(&mut self) {
+        info!("shutting down...");
+        for device in &mut self.devices {
+            match device.disable() {
+                Ok(()) => info!("{} is disabled", device.name()),
+                Err(NetDeviceError::AlreadyDown) => warn!("{} is already Down", device.name()),
+                Err(_) => unreachable!(),
+            }
+        }
+        info!("success");
+    }
+
+    pub fn register_device(
+        &mut self,
+        device_type: NetDeviceType,
+        mtu: u16,
+        header_len: u16,
+        address_len: u16,
+        addr: [u8; 16],
+    ) -> usize {
+        info!("Register new device...");
+        let index_size = self.devices.len();
+        let new_device_name = String::from("net") + &index_size.to_string();
+        let new_device = Builder::new()
+            .index(index_size)
+            .name(new_device_name.clone())
+            .device_type(device_type)
+            .mtu(mtu)
+            .header_len(header_len)
+            .address_len(address_len)
+            .addr(addr)
+            .flags(NetDeviceFlags::empty())
+            .build()
+            .expect("All fields are provided by new_device");
+        self.devices.push(new_device);
+        info!("success, dev={}", &new_device_name);
+        index_size
+    }
+
+    pub fn output(
+        &self,
+        index: usize,
+        protocol_type: u16,
+        data: &[u8],
+    ) -> Result<(), NetStackError> {
+        let Some(device) = self.devices.get(index) else {
+            warn!("target device not found");
+            return Err(NetStackError::DeviceNotFound);
+        };
+        device.output(protocol_type, data, ())?;
+        Ok(())
+    }
+}
+
+#[derive(Debug)]
+pub enum NetStackError {
+    DeviceNotFound,
+    Device(NetDeviceError),
+}
+
+impl From<NetDeviceError> for NetStackError {
+    fn from(err: NetDeviceError) -> NetStackError {
+        NetStackError::Device(err)
+    }
 }

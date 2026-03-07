@@ -2,9 +2,14 @@
 resolver = "3"
 members = ["protocolstack/domain", "protocolstack/platform/*", "samples/*"]
 
-default-members = ["protocolstack/domain", "protocolstack/platform/linux", "samples/linux"]
+default-members = [
+  "protocolstack/domain",
+  "protocolstack/platform/linux",
+  "samples/linux",
+]
 
 [workspace.dependencies]
 domain = { path = "protocolstack/domain" }
 pal-linux = { path = "protocolstack/platform/linux" }
-log = {version = "0.4", default-features = false}
+log = { version = "0.4", default-features = false }
+bitflags = { version = "2.11.0", default-features = false }

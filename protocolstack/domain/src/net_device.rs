@@ -82,18 +82,6 @@ pub enum NetDeviceError {
     PacketTooLong,
 }
 
-impl fmt::Display for NetDeviceError {
-    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
-        use NetDeviceError::*;
-        match *self {
-            AlreadyUp => fmt.write_str("already up"),
-            AlreadyDown => fmt.write_str("already down"),
-            DeviceDown => fmt.write_str("device is down"),
-            PacketTooLong => fmt.write_str("packet too long"),
-        }
-    }
-}
-
 #[derive(Default)]
 pub struct Builder {
     index: Option<usize>,

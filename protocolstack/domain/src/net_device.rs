@@ -74,11 +74,24 @@ impl NetDevice {
     }
 }
 
+#[derive(Debug)]
 pub enum NetDeviceError {
     AlreadyUp,
     AlreadyDown,
     DeviceDown,
     PacketTooLong,
+}
+
+impl fmt::Display for NetDeviceError {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
+        use NetDeviceError::*;
+        match *self {
+            AlreadyUp => fmt.write_str("already up"),
+            AlreadyDown => fmt.write_str("already down"),
+            DeviceDown => fmt.write_str("device is down"),
+            PacketTooLong => fmt.write_str("packet too long"),
+        }
+    }
 }
 
 #[derive(Default)]
@@ -162,26 +175,4 @@ pub enum BuildError {
     MissingIndex,
     MissingMtu,
     MissingName,
-}
-
-impl BuildError {
-    pub fn as_str(&self) -> &'static str {
-        use BuildError::*;
-        match self {
-            MissingAddressLen => "missing address len",
-            MissingAddr => "missing address",
-            MissingDeviceType => "missing device type",
-            MissingFlags => "missing flags",
-            MissingHeaderLen => "missing header len",
-            MissingIndex => "missing index",
-            MissingMtu => "missing mtu",
-            MissingName => "missing name",
-        }
-    }
-}
-
-impl fmt::Display for BuildError {
-    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
-        fmt.write_str(self.as_str())
-    }
 }

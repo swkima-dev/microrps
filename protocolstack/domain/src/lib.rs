@@ -5,11 +5,14 @@ pub mod net_device;
 pub mod pal;
 pub mod util;
 
+use crate::net_device::DeviceDriver;
 use crate::pal::Platform;
+use crate::util::debugdump;
+use alloc::boxed::Box;
 use alloc::string::{String, ToString};
 use alloc::vec::Vec;
 use core::marker::PhantomData;
-use log::{info, warn};
+use log::{debug, info, warn};
 use net_device::{Builder, NetDevice, NetDeviceError, NetDeviceFlags, NetDeviceType};
 
 pub struct NetStack<P: Platform> {
@@ -58,6 +61,7 @@ impl<P: Platform> NetStack<P> {
         header_len: u16,
         address_len: u16,
         addr: [u8; 16],
+        driver: Option<Box<dyn DeviceDriver>>,
     ) -> usize {
         info!("Register new device...");
         let index_size = self.devices.len();
@@ -71,6 +75,7 @@ impl<P: Platform> NetStack<P> {
             .address_len(address_len)
             .addr(addr)
             .flags(NetDeviceFlags::empty())
+            .driver(driver)
             .build()
             .expect("All fields are provided by new_device");
         self.devices.push(new_device);
@@ -78,13 +83,33 @@ impl<P: Platform> NetStack<P> {
         index_size
     }
 
-    pub fn output(
+    pub fn input(
         &self,
+        protocol_type: u16,
+        data: &[u8],
+        index: usize,
+    ) -> Result<(), NetStackError> {
+        let Some(device) = self.devices.get(index) else {
+            warn!("target device not found");
+            return Err(NetStackError::DeviceNotFound);
+        };
+        debug!(
+            "dev={}, type={}, len={}",
+            device.name(),
+            protocol_type,
+            data.len()
+        );
+        debugdump(data);
+        Ok(())
+    }
+
+    pub fn output(
+        &mut self,
         index: usize,
         protocol_type: u16,
         data: &[u8],
     ) -> Result<(), NetStackError> {
-        let Some(device) = self.devices.get(index) else {
+        let Some(device) = self.devices.get_mut(index) else {
             warn!("target device not found");
             return Err(NetStackError::DeviceNotFound);
         };

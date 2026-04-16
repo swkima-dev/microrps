@@ -1,6 +1,8 @@
 use crate::util;
-use alloc::{boxed::Box, string::String};
+use alloc::{boxed::Box, string::String, vec::Vec};
 use bitflags::bitflags;
+
+pub mod loopback;
 
 #[allow(dead_code)]
 pub struct NetDevice {
@@ -82,7 +84,7 @@ impl NetDevice {
             return Err(NetDeviceError::PacketTooLong);
         }
         if let Some(driver) = &mut self.driver {
-            driver.output(data, data.len() as u16, protocol_type)?;
+            driver.output(data, data.len() as u16, protocol_type, None)?;
         }
         Ok(())
     }
@@ -202,7 +204,15 @@ pub trait DeviceDriver {
         Ok(())
     }
 
-    fn output(&mut self, data: &[u8], len: u16, driver_type: u16) -> Result<(), DeviceDriverError>;
+    fn output(
+        &mut self,
+        data: &[u8],
+        len: u16,
+        driver_type: u16,
+        dst: Option<&[u8]>,
+    ) -> Result<(), DeviceDriverError>;
+
+    fn poll(&mut self) -> Result<Option<(u16, Vec<u8>)>, DeviceDriverError>;
 }
 
 #[derive(Debug)]

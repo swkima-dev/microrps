@@ -6,6 +6,7 @@ pub mod pal;
 pub mod util;
 
 use crate::net_device::DeviceDriver;
+use crate::net_device::loopback::LoopBackDriver;
 use crate::pal::Platform;
 use crate::util::debugdump;
 use alloc::boxed::Box;
@@ -14,6 +15,8 @@ use alloc::vec::Vec;
 use core::marker::PhantomData;
 use log::{debug, info, warn};
 use net_device::{Builder, NetDevice, NetDeviceError, NetDeviceFlags, NetDeviceType};
+
+const LOOPBACK_MTU: u16 = u16::MAX;
 
 pub struct NetStack<P: Platform> {
     devices: Vec<NetDevice>,
@@ -81,6 +84,19 @@ impl<P: Platform> NetStack<P> {
         self.devices.push(new_device);
         info!("success, dev={}", &new_device_name);
         index_size
+    }
+
+    pub fn loopback_init(&mut self, driver: LoopBackDriver) -> usize {
+        info!("Register new loopback...");
+        let index = self.register_device(
+            NetDeviceType::LoopBack,
+            LOOPBACK_MTU,
+            0,
+            0,
+            [0u8; 16],
+            Some(Box::new(driver)),
+        );
+        index
     }
 
     pub fn input(

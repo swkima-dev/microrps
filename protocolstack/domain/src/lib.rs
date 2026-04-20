@@ -113,9 +113,9 @@ impl<P: Platform> NetStack<P> {
 
     pub fn input(
         &self,
+        index: usize,
         protocol_type: u16,
         data: &[u8],
-        index: usize,
     ) -> Result<(), NetStackError> {
         let Some(device) = self.devices.get(index) else {
             warn!("target device not found");

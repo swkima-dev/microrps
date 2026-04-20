@@ -45,6 +45,17 @@ impl<P: Platform> NetStack<P> {
         info!("success");
     }
 
+    pub fn poll(&mut self) -> Result<(), NetStackError> {
+        info!("polling...");
+        for device in &mut self.devices {
+            while let Some(frame) = device.poll()? {
+                debug!("INPUT dev: {}, type: {}", device.name(), frame.0);
+                debugdump(&frame.1);
+            }
+        }
+        Ok(())
+    }
+
     pub fn shutdown(&mut self) {
         info!("shutting down...");
         for device in &mut self.devices {
@@ -86,8 +97,9 @@ impl<P: Platform> NetStack<P> {
         index_size
     }
 
-    pub fn loopback_init(&mut self, driver: LoopBackDriver) -> usize {
+    pub fn loopback_init(&mut self) -> usize {
         info!("Register new loopback...");
+        let driver = LoopBackDriver::new();
         let index = self.register_device(
             NetDeviceType::LoopBack,
             LOOPBACK_MTU,

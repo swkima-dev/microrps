@@ -88,6 +88,13 @@ impl NetDevice {
         }
         Ok(())
     }
+
+    pub fn poll(&mut self) -> Result<Option<(u16, Vec<u8>)>, NetDeviceError> {
+        match &mut self.driver {
+            Some(driver) => Ok(driver.poll()?),
+            None => Err(NetDeviceError::MissingDriver),
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -96,6 +103,7 @@ pub enum NetDeviceError {
     AlreadyDown,
     DeviceDown,
     PacketTooLong,
+    MissingDriver,
     Driver(DeviceDriverError),
 }
 

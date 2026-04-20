@@ -84,7 +84,7 @@ impl NetDevice {
             return Err(NetDeviceError::PacketTooLong);
         }
         if let Some(driver) = &mut self.driver {
-            driver.output(data, data.len() as u16, protocol_type, None)?;
+            driver.output(data, protocol_type, None)?;
         }
         Ok(())
     }
@@ -215,7 +215,6 @@ pub trait DeviceDriver {
     fn output(
         &mut self,
         data: &[u8],
-        len: u16,
         driver_type: u16,
         dst: Option<&[u8]>,
     ) -> Result<(), DeviceDriverError>;

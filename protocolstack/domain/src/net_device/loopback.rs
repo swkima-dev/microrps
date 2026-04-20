@@ -22,11 +22,14 @@ impl DeviceDriver for LoopBackDriver {
     fn output(
         &mut self,
         data: &[u8],
-        len: u16,
         driver_type: u16,
         dst: Option<&[u8]>, // A device tracking a loopback does not need to use the destination address.
     ) -> Result<(), super::DeviceDriverError> {
-        debug!("OUTPUT dev: loopback, type: {}, len: {}", driver_type, len);
+        debug!(
+            "OUTPUT dev: loopback, type: {}, len: {}",
+            driver_type,
+            data.len()
+        );
         debugdump(data);
         self.rx_queue.push_back((driver_type, data.to_vec()));
         Ok(())

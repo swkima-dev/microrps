@@ -14,9 +14,7 @@ use alloc::string::{String, ToString};
 use alloc::vec::Vec;
 use core::marker::PhantomData;
 use log::{debug, info, warn};
-use net_device::{
-    Builder, DeviceDriverError, NetDevice, NetDeviceError, NetDeviceFlags, NetDeviceType,
-};
+use net_device::{Builder, NetDevice, NetDeviceError, NetDeviceFlags, NetDeviceType};
 
 const LOOPBACK_MTU: u16 = u16::MAX;
 

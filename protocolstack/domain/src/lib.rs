@@ -14,7 +14,9 @@ use alloc::string::{String, ToString};
 use alloc::vec::Vec;
 use core::marker::PhantomData;
 use log::{debug, info, warn};
-use net_device::{Builder, NetDevice, NetDeviceError, NetDeviceFlags, NetDeviceType};
+use net_device::{
+    Builder, DeviceDriverError, NetDevice, NetDeviceError, NetDeviceFlags, NetDeviceType,
+};
 
 const LOOPBACK_MTU: u16 = u16::MAX;
 
@@ -39,7 +41,7 @@ impl<P: Platform> NetStack<P> {
             match device.enable() {
                 Ok(()) => info!("{} is enabled", device.name()),
                 Err(NetDeviceError::AlreadyUp) => warn!("{} is already Up", device.name()),
-                Err(_) => unreachable!(),
+                Err(e) => warn!("failed to enable {}: {:?}", device.name(), e),
             }
         }
         info!("success");
@@ -62,7 +64,7 @@ impl<P: Platform> NetStack<P> {
             match device.disable() {
                 Ok(()) => info!("{} is disabled", device.name()),
                 Err(NetDeviceError::AlreadyDown) => warn!("{} is already Down", device.name()),
-                Err(_) => unreachable!(),
+                Err(e) => warn!("failed to disable {}: {:?}", device.name(), e),
             }
         }
         info!("success");

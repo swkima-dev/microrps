@@ -5,12 +5,18 @@ pub mod net_device;
 pub mod pal;
 pub mod util;
 
+use crate::net_device::DeviceDriver;
+use crate::net_device::loopback::LoopBackDriver;
 use crate::pal::Platform;
+use crate::util::debugdump;
+use alloc::boxed::Box;
 use alloc::string::{String, ToString};
 use alloc::vec::Vec;
 use core::marker::PhantomData;
-use log::{info, warn};
+use log::{debug, info, warn};
 use net_device::{Builder, NetDevice, NetDeviceError, NetDeviceFlags, NetDeviceType};
+
+const LOOPBACK_MTU: u16 = u16::MAX;
 
 pub struct NetStack<P: Platform> {
     devices: Vec<NetDevice>,
@@ -33,10 +39,21 @@ impl<P: Platform> NetStack<P> {
             match device.enable() {
                 Ok(()) => info!("{} is enabled", device.name()),
                 Err(NetDeviceError::AlreadyUp) => warn!("{} is already Up", device.name()),
-                Err(_) => unreachable!(),
+                Err(e) => warn!("failed to enable {}: {:?}", device.name(), e),
             }
         }
         info!("success");
+    }
+
+    pub fn poll(&mut self) -> Result<(), NetStackError> {
+        info!("polling...");
+        for device in &mut self.devices {
+            while let Some(frame) = device.poll()? {
+                debug!("INPUT dev: {}, type: {}", device.name(), frame.0);
+                debugdump(&frame.1);
+            }
+        }
+        Ok(())
     }
 
     pub fn shutdown(&mut self) {
@@ -45,7 +62,7 @@ impl<P: Platform> NetStack<P> {
             match device.disable() {
                 Ok(()) => info!("{} is disabled", device.name()),
                 Err(NetDeviceError::AlreadyDown) => warn!("{} is already Down", device.name()),
-                Err(_) => unreachable!(),
+                Err(e) => warn!("failed to disable {}: {:?}", device.name(), e),
             }
         }
         info!("success");
@@ -58,6 +75,7 @@ impl<P: Platform> NetStack<P> {
         header_len: u16,
         address_len: u16,
         addr: [u8; 16],
+        driver: Option<Box<dyn DeviceDriver>>,
     ) -> usize {
         info!("Register new device...");
         let index_size = self.devices.len();
@@ -71,6 +89,7 @@ impl<P: Platform> NetStack<P> {
             .address_len(address_len)
             .addr(addr)
             .flags(NetDeviceFlags::empty())
+            .driver(driver)
             .build()
             .expect("All fields are provided by new_device");
         self.devices.push(new_device);
@@ -78,13 +97,46 @@ impl<P: Platform> NetStack<P> {
         index_size
     }
 
-    pub fn output(
+    pub fn loopback_init(&mut self) -> usize {
+        info!("Register new loopback...");
+        let driver = LoopBackDriver::new();
+        self.register_device(
+            NetDeviceType::LoopBack,
+            LOOPBACK_MTU,
+            0,
+            0,
+            [0u8; 16],
+            Some(Box::new(driver)),
+        )
+    }
+
+    pub fn input(
         &self,
         index: usize,
         protocol_type: u16,
         data: &[u8],
     ) -> Result<(), NetStackError> {
         let Some(device) = self.devices.get(index) else {
+            warn!("target device not found");
+            return Err(NetStackError::DeviceNotFound);
+        };
+        debug!(
+            "dev={}, type={}, len={}",
+            device.name(),
+            protocol_type,
+            data.len()
+        );
+        debugdump(data);
+        Ok(())
+    }
+
+    pub fn output(
+        &mut self,
+        index: usize,
+        protocol_type: u16,
+        data: &[u8],
+    ) -> Result<(), NetStackError> {
+        let Some(device) = self.devices.get_mut(index) else {
             warn!("target device not found");
             return Err(NetStackError::DeviceNotFound);
         };

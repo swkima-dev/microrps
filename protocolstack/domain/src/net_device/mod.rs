@@ -1,6 +1,8 @@
 use crate::util;
-use alloc::string::String;
+use alloc::{boxed::Box, string::String, vec::Vec};
 use bitflags::bitflags;
+
+pub mod loopback;
 
 #[allow(dead_code)]
 pub struct NetDevice {
@@ -12,6 +14,7 @@ pub struct NetDevice {
     address_len: u16,
     addr: [u8; 16],
     flags: NetDeviceFlags,
+    driver: Option<Box<dyn DeviceDriver>>,
 }
 
 pub enum NetDeviceType {
@@ -43,6 +46,9 @@ impl NetDevice {
         if self.is_up() {
             return Err(NetDeviceError::AlreadyUp);
         }
+        if let Some(driver) = &mut self.driver {
+            driver.open()?;
+        }
         self.flags.insert(NetDeviceFlags::UP);
         Ok(())
     }
@@ -50,6 +56,9 @@ impl NetDevice {
     pub fn disable(&mut self) -> Result<(), NetDeviceError> {
         if !self.is_up() {
             return Err(NetDeviceError::AlreadyDown);
+        }
+        if let Some(driver) = &mut self.driver {
+            driver.close()?;
         }
         self.flags.remove(NetDeviceFlags::UP);
         Ok(())
@@ -60,7 +69,12 @@ impl NetDevice {
     }
 
     #[allow(unused_variables)]
-    pub fn output(&self, protocol_type: u16, data: &[u8], dst: ()) -> Result<(), NetDeviceError> {
+    pub fn output(
+        &mut self,
+        protocol_type: u16,
+        data: &[u8],
+        dst: (),
+    ) -> Result<(), NetDeviceError> {
         util::debugdump(data);
         if !self.is_up() {
             return Err(NetDeviceError::DeviceDown);
@@ -69,7 +83,17 @@ impl NetDevice {
         if mtu_usize < data.len() {
             return Err(NetDeviceError::PacketTooLong);
         }
+        if let Some(driver) = &mut self.driver {
+            driver.output(data, protocol_type, None)?;
+        }
         Ok(())
+    }
+
+    pub fn poll(&mut self) -> Result<Option<(u16, Vec<u8>)>, NetDeviceError> {
+        match &mut self.driver {
+            Some(driver) => Ok(driver.poll()?),
+            None => Err(NetDeviceError::MissingDriver),
+        }
     }
 }
 
@@ -79,6 +103,14 @@ pub enum NetDeviceError {
     AlreadyDown,
     DeviceDown,
     PacketTooLong,
+    MissingDriver,
+    Driver(DeviceDriverError),
+}
+
+impl From<DeviceDriverError> for NetDeviceError {
+    fn from(err: DeviceDriverError) -> NetDeviceError {
+        NetDeviceError::Driver(err)
+    }
 }
 
 #[derive(Default)]
@@ -91,6 +123,7 @@ pub struct Builder {
     address_len: Option<u16>,
     addr: Option<[u8; 16]>,
     flags: Option<NetDeviceFlags>,
+    driver: Option<Box<dyn DeviceDriver>>,
 }
 
 impl Builder {
@@ -108,6 +141,7 @@ impl Builder {
             address_len: self.address_len.ok_or(BuildError::MissingAddressLen)?,
             addr: self.addr.ok_or(BuildError::MissingAddr)?,
             flags: self.flags.ok_or(BuildError::MissingFlags)?,
+            driver: self.driver,
         })
     }
 
@@ -150,6 +184,11 @@ impl Builder {
         self.flags = Some(value);
         self
     }
+
+    pub fn driver(mut self, value: Option<Box<dyn DeviceDriver>>) -> Self {
+        self.driver = value;
+        self
+    }
 }
 
 #[derive(Debug)]
@@ -162,4 +201,28 @@ pub enum BuildError {
     MissingIndex,
     MissingMtu,
     MissingName,
+}
+
+pub trait DeviceDriver {
+    fn open(&mut self) -> Result<(), DeviceDriverError> {
+        Ok(())
+    }
+
+    fn close(&mut self) -> Result<(), DeviceDriverError> {
+        Ok(())
+    }
+
+    fn output(
+        &mut self,
+        data: &[u8],
+        driver_type: u16,
+        dst: Option<&[u8]>,
+    ) -> Result<(), DeviceDriverError>;
+
+    fn poll(&mut self) -> Result<Option<(u16, Vec<u8>)>, DeviceDriverError>;
+}
+
+#[derive(Debug)]
+pub enum DeviceDriverError {
+    DeviceResolutionFailure,
 }

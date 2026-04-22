@@ -100,15 +100,14 @@ impl<P: Platform> NetStack<P> {
     pub fn loopback_init(&mut self) -> usize {
         info!("Register new loopback...");
         let driver = LoopBackDriver::new();
-        let index = self.register_device(
+        self.register_device(
             NetDeviceType::LoopBack,
             LOOPBACK_MTU,
             0,
             0,
             [0u8; 16],
             Some(Box::new(driver)),
-        );
-        index
+        )
     }
 
     pub fn input(

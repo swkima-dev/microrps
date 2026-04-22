@@ -17,6 +17,12 @@ impl LoopBackDriver {
     }
 }
 
+impl Default for LoopBackDriver {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl DeviceDriver for LoopBackDriver {
     #[allow(unused_variables)]
     fn output(
